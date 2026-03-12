@@ -218,13 +218,13 @@ func (ss *SessionService) StopRelay(sessID string) error {
 	return ss.repo.Save(session)
 }
 
-func (ss *SessionService) NewRedirector(sessID string, proto string, from string, to string) error {
+func (ss *SessionService) NewRedirector(sessID string, proto string, from string, to string, proxy string) error {
 	session := ss.repo.GetOne(sessID)
 	if session == nil {
 		return fmt.Errorf("session '%s' not found", sessID)
 	}
 
-	if err := session.NewRedirector(proto, from, to); err != nil {
+	if err := session.NewRedirector(proto, from, to, proxy); err != nil {
 		return err
 	}
 

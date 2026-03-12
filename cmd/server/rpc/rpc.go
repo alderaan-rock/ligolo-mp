@@ -260,7 +260,7 @@ func (s *ligoloServer) AddRedirector(ctx context.Context, in *pb.AddRedirectorRe
 	slog.Debug("Received request to create redirector", slog.Any("in", in))
 
 	sess := s.sessService.GetSession(in.SessionID)
-	err := s.sessService.NewRedirector(in.SessionID, in.Protocol, in.From, in.To)
+	err := s.sessService.NewRedirector(in.SessionID, in.Protocol, in.From, in.To, in.Proxy)
 	if err == nil {
 		oper := ctx.Value("operator").(*operator.Operator)
 		events.Publish(events.OK, "%s: redirector '%s'-->'%s' added to '%s'", oper.Name, in.From, in.To, sess.GetName())

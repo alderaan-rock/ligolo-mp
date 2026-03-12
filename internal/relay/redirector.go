@@ -11,16 +11,17 @@ type Redirector struct {
 	Network  string
 	From     string
 	To       string
+	Proxy    string
 	Listener net.Listener
 }
 
-func NewLRedirector(id string, network string, from string, to string) (Redirector, error) {
+func NewLRedirector(id string, network string, from string, to string, proxy string) (Redirector, error) {
 	lis, err := net.Listen(network, from)
 
 	if err != nil {
 		return Redirector{}, err
 	}
-	return Redirector{ID: id, Network: network, From: from, To: to, Listener: lis}, nil
+	return Redirector{ID: id, Network: network, From: from, To: to, Proxy: proxy, Listener: lis}, nil
 }
 
 func (s *Redirector) ListenAndRelay() error {

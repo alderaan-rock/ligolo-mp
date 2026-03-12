@@ -123,7 +123,7 @@ func (widget *RedirectorsWidget) ResetSelector() {
 }
 
 func (widget *RedirectorsWidget) Refresh() {
-	headers := []string{"Session", "From", "To", "Protocol", ""}
+	headers := []string{"Session", "From", "To", "Proxy", "Protocol", ""}
 	for i := 0; i < len(headers); i++ {
 		header := fmt.Sprintf("[::b]%s", strings.ToUpper(headers[i]))
 		widget.SetCell(0, i, tview.NewTableCell(header).SetExpansion(1).SetSelectable(false)).SetFixed(1, 0)
@@ -141,7 +141,8 @@ func (widget *RedirectorsWidget) Refresh() {
 		widget.SetCell(rowId, 1, elem.From())
 		widget.SetCell(rowId, 2, elem.To())
 		widget.SetCell(rowId, 3, elem.Protocol())
-		widget.SetCell(rowId, 4, elem.Status().SetSelectable(false).SetAlign(tview.AlignCenter))
+		widget.SetCell(rowId, 4, elem.Proxy())
+		widget.SetCell(rowId, 5, elem.Status().SetSelectable(false).SetAlign(tview.AlignCenter))
 
 		rowId++
 
@@ -194,6 +195,11 @@ func (elem *RedirectorsWidgetElem) From() *tview.TableCell {
 
 func (elem *RedirectorsWidgetElem) To() *tview.TableCell {
 	val := elem.Redirector.To
+	return tview.NewTableCell(val).SetBackgroundColor(elem.bgcolor)
+}
+
+func (elem *RedirectorsWidgetElem) Proxy() *tview.TableCell {
+	val := elem.Redirector.Proxy
 	return tview.NewTableCell(val).SetBackgroundColor(elem.bgcolor)
 }
 

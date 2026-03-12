@@ -478,6 +478,7 @@ type Redirector struct {
 	Protocol string `protobuf:"bytes,2,opt,name=Protocol,proto3" json:"Protocol,omitempty"`
 	From     string `protobuf:"bytes,3,opt,name=From,proto3" json:"From,omitempty"`
 	To       string `protobuf:"bytes,4,opt,name=To,proto3" json:"To,omitempty"`
+	Proxy    string `protobuf:"bytes,5,opt,name=Proxy,proto3" json:"Proxy,omitempty"`
 }
 
 func (x *Redirector) Reset() {
@@ -536,6 +537,13 @@ func (x *Redirector) GetFrom() string {
 func (x *Redirector) GetTo() string {
 	if x != nil {
 		return x.To
+	}
+	return ""
+}
+
+func (x *Redirector) GetProxy() string {
+	if x != nil {
+		return x.Proxy
 	}
 	return ""
 }

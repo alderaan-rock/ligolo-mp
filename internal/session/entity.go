@@ -38,6 +38,7 @@ type Redirector struct {
 	Protocol string
 	From     string
 	To       string
+	Proxy    string
 }
 
 func (r *Redirector) Hash() string {
@@ -45,6 +46,7 @@ func (r *Redirector) Hash() string {
 	hasher.Write([]byte(r.Protocol))
 	hasher.Write([]byte(r.From))
 	hasher.Write([]byte(r.To))
+	hasher.Write([]byte(r.Proxy))
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
@@ -146,7 +148,7 @@ func (sess *Session) Copy(source *Session) {
 	}
 
 	for _, redirector := range source.Redirectors.All() {
-		if err := sess.NewRedirector(redirector.Protocol, redirector.From, redirector.To); err != nil {
+		if err := sess.NewRedirector(redirector.Protocol, redirector.From, redirector.To, redirector.Proxy); err != nil {
 			slog.Error("could not create new redirector", slog.Any("redirector", redirector))
 		}
 		slog.Debug("redirector restored", slog.Any("redirector", redirector))
@@ -190,7 +192,7 @@ func (sess *Session) Connect(multiplex *yamux.Session) error {
 	// Re-open server-tracked redirectors on the agent (used when Connect is
 	// called on a session that already has redirectors).
 	for _, redirector := range sess.Redirectors.All() {
-		if err := sess.NewRedirector(redirector.Protocol, redirector.From, redirector.To); err != nil {
+		if err := sess.NewRedirector(redirector.Protocol, redirector.From, redirector.To, redirector.Proxy); err != nil {
 			slog.Error("could not create redirector", slog.Any("error", err))
 		}
 	}
@@ -230,16 +232,17 @@ func (sess *Session) StopRelay() error {
 	return nil
 }
 
-func (sess *Session) NewRedirector(proto string, from string, to string) error {
+func (sess *Session) NewRedirector(proto string, from string, to string, proxy string) error {
 	redirector := Redirector{
 		Protocol: proto,
 		From:     from,
 		To:       to,
+		Proxy:    proxy,
 	}
 	redirector.ID = redirector.Hash()
 
 	if sess.IsConnected {
-		if err := sess.remoteCreateRedirector(redirector.ID, proto, from, to); err != nil {
+		if err := sess.remoteCreateRedirector(redirector.ID, proto, from, to, proxy); err != nil {
 			return err
 		}
 	}
@@ -329,7 +332,7 @@ func (sess *Session) remoteDestroySession() error {
 	return nil
 }
 
-func (sess *Session) remoteCreateRedirector(id string, proto string, from string, to string) error {
+func (sess *Session) remoteCreateRedirector(id string, proto string, from string, to string, proxy string) error {
 	if !sess.IsMultiplexOpen() {
 		return fmt.Errorf("multiplex is disconnected")
 	}
